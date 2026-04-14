@@ -94,7 +94,7 @@ function updatePreview() {
     // onClick check change of title and pathname
     newIframe.contentWindow.addEventListener("click", () => {
       setTimeout(() => {
-        ptitle.innerHTML = newIframe.contentWindow.document.title + " - " + newIframe.contentWindow.location.pathname;
+        ptitle.textContent = newIframe.contentWindow.document.title + " - " + newIframe.contentWindow.location.pathname;
       });
     });
 }
