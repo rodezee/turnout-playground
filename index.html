@@ -3,25 +3,64 @@
 <head>
     <title>Turnout Playground</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23252526'/%3E%3Cpath d='M25 25 L70 50 L25 75' stroke='%23007acc' stroke-width='9' fill='none' stroke-linejoin='round' stroke-linecap='round'/%3E%3Ccircle cx='70' cy='50' r='7' fill='%2300ff00'/%3E%3C/svg%3E">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    
     <style>
         body { display: flex; height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
         .editor, .preview { flex: 1; display: flex; flex-direction: column; height: 100%; }
         
-        textarea { 
-            flex: 1; 
-            padding: 20px; 
-            font-family: 'Fira Code', 'Courier New', monospace; 
-            font-size: 14px; 
-            border: none; 
-            background: #1e1e1e; 
-            color: #d4d4d4; 
-            resize: none; 
-            outline: none; 
-            tab-size: 4; 
-            caret-color: #00ff00; 
-            spellcheck: false; 
+        /* The Magic Layering Container */
+        .editor-wrapper {
+            position: relative;
+            flex: 1;
+            background: #1e1e1e;
+            overflow: hidden;
         }
-        
+
+        /* Shared styles for both the textarea and the highlight layer */
+        #code, #highlight-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: none;
+            overflow: auto;
+        }
+
+        /* The actual input layer */
+        #code {
+            z-index: 2;
+            background: transparent;
+            color: transparent; /* Text is invisible so the highlight layer shows through */
+            caret-color: #00ff00; /* But the cursor stays green! */
+            resize: none;
+            outline: none;
+            tab-size: 4;
+        }
+
+        /* The visual display layer */
+        #highlight-layer {
+            z-index: 1;
+            pointer-events: none; /* Let clicks pass through to the textarea */
+        }
+
+        /* Reset Prism defaults to align with textarea */
+        #highlight-layer code {
+            padding: 0 !important;
+            background: transparent !important;
+            font-family: inherit !important;
+        }
+
         iframe { flex: 1; border: none; background: white; width: 100%; height: 100%; }
         
         /* Toolbar Styling */
@@ -39,6 +78,7 @@
         }
 
         .toolbar-label { display: flex; align-items: center; gap: 8px; }
+        #preview-title { color: #00ff00; font-weight: bold; margin-left: 5px; text-transform: none; }
 
         /* Button Styling */
         button {
@@ -54,15 +94,12 @@
             margin-left: 4px;
         }
 
-        /* RUN/REFRESH Button */
         button[onclick="updatePreview()"] { background-color: #007acc; color: white; }
         button[onclick="updatePreview()"]:hover { background-color: #005a9e; box-shadow: 0 0 8px rgba(0, 122, 204, 0.3); }
 
-        /* SHARE Button */
         button[onclick="shareCode()"] { background-color: #28a745; color: white; }
         button[onclick="shareCode()"]:hover { background-color: #218838; }
 
-        /* CLEAR Button */
         button[onclick="resetDefault()"] { background-color: #444; color: #ccc; }
         button[onclick="resetDefault()"]:hover { background-color: #555; color: white; }
 
@@ -86,7 +123,11 @@
                 <button onclick="resetDefault()">Clear</button>
             </div>
         </div>
-        <textarea id="code" placeholder="Type your HTML here..."></textarea>
+        
+        <div class="editor-wrapper">
+            <pre id="highlight-layer"><code class="language-html" id="highlight-content"></code></pre>
+            <textarea id="code" spellcheck="false"></textarea>
+        </div>
     </div>
 
     <div id="preview-container" class="preview">
@@ -97,14 +138,19 @@
                     <path d="M25 25 L70 50 L25 75" stroke="#007acc" stroke-width="9" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
                     <circle cx="70" cy="50" r="7" fill="#00ff00"/>
                 </svg>
-                <span>Live Preview</span>
-                <strong id="preview-title"></strong>
+                <span>Preview:</span>
+                <span id="preview-title"></span>
             </div>
             <button onclick="updatePreview()">Refresh</button>
         </div>
         <iframe id="display"></iframe>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    
     <script src="turnout-playground.js"></script>
 </body>
 </html>
