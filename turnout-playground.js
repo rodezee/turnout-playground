@@ -87,8 +87,16 @@ function updatePreview() {
     target.open();
     target.write(code);
     target.close();
-    
-    ptitle.innerHTML = target.title || "";
+
+    // Initial title set
+    ptitle.innerHTML = target.title + " - " + newIframe.contentWindow.location.pathname;
+
+    // onClick check change of title and pathname
+    newIframe.contentWindow.addEventListener("click", () => {
+      setTimeout(() => {
+        ptitle.innerHTML = newIframe.contentWindow.document.title + " - " + newIframe.contentWindow.location.pathname;
+      });
+    });
 }
 
 /**
