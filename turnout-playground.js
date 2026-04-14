@@ -1,5 +1,6 @@
 const editor = document.getElementById('code');
 const highlightContent = document.getElementById('highlight-content');
+const highlightLayer = document.getElementById('highlight-layer');
 
 /**
  * INITIALIZATION
@@ -25,31 +26,48 @@ function init() {
         editor.value = savedCode || getDefaultTemplate();
     }
 
-    // Initialize both layers
     syncHighlight();
     updatePreview();
 }
 
 function getDefaultTemplate() {
-    return `<!DOCTYPE html>\n<html>\n<head>\n  <title>Turnout Playground</title>\n</head>\n<body>\n  Enjoy!\n</body>\n</html>`;
+    return `<!DOCTYPE html>\n<html>\n<head>\n  <title>Turnout Playground</title>\n</head>\n<body>\n  <h1>Enjoy!</h1>\n</body>\n</html>`;
 }
 
 /**
- * SYNCHRONOUS UI UPDATES (Fast)
- * This runs immediately on every keystroke
+ * SYNCHRONOUS UI UPDATES
+ * We treat the Textarea as the absolute master.
  */
 function syncHighlight() {
     let code = editor.value;
-    // Fix for Prism newline behavior
-    if(code[code.length-1] === "\n") code += " ";
+    // Prevent the last-line jump
+    if (code[code.length - 1] === "\n") code += " ";
     
     highlightContent.textContent = code;
     Prism.highlightElement(highlightContent);
+
+    // 1. Temporarily shrink to measure content
+    editor.style.height = 'auto';
+    editor.style.width = 'auto';
+    
+    // 2. Measure exactly how much space the text occupies
+    const contentWidth = editor.scrollWidth + "px";
+    const contentHeight = editor.scrollHeight + "px";
+
+    // 3. Force both layers to that exact size so they match pixel-for-pixel
+    [editor, highlightLayer].forEach(el => {
+        el.style.width = contentWidth;
+        el.style.height = contentHeight;
+    });
 }
+
+// Remove scroll listeners—the wrapper handles it natively now!
+
+// Ensure we sync when the window changes size
+window.addEventListener('resize', syncHighlight);
 
 /**
  * ASYNC PREVIEW UPDATES (Debounced)
- * This reloads the heavy iframe
  */
 function updatePreview() {
     const code = editor.value;
@@ -71,54 +89,41 @@ function updatePreview() {
     target.close();
     
     ptitle.innerHTML = target.title || "";
-
-    const observer = new MutationObserver(() => {
-        ptitle.innerHTML = newIframe.contentWindow.document.title || "";
-    });
-
-    observer.observe(newIframe.contentWindow.document.querySelector('title') || newIframe.contentWindow.document.head, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
-}
-
-/**
- * SHARING & RESET
- */
-function shareCode() {
-    const code = editor.value;
-    try {
-        const base64 = btoa(encodeURIComponent(code).replace(/%([0-9A-F]{2})/g,
-            function toSolidBytes(match, p1) { return String.fromCharCode('0x' + p1); }));
-        const urlSafeBase64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-        const shareUrl = window.location.origin + window.location.pathname + '?code=' + urlSafeBase64;
-        navigator.clipboard.writeText(shareUrl).then(() => { alert("Shareable link copied!"); });
-    } catch (e) { alert("Encoding failed."); }
-}
-
-function resetDefault() {
-    if(confirm("Reset playground?")) {
-        localStorage.removeItem('turnout_playground_code');
-        window.location.href = window.location.origin + window.location.pathname;
-    }
 }
 
 /**
  * EVENT LISTENERS
  */
-editor.addEventListener('scroll', () => {
-    const layer = document.getElementById('highlight-layer');
-    layer.scrollTop = editor.scrollTop;
-    layer.scrollLeft = editor.scrollLeft;
+
+// Typing
+editor.addEventListener('input', () => {
+    syncHighlight();
+    clearTimeout(window.saveTimer);
+    window.saveTimer = setTimeout(updatePreview, 800);
 });
 
-// The secret sauce: Update text colors INSTANTLY, delay the IFRAME
-editor.addEventListener('input', () => {
-    syncHighlight(); // Immediate visual feedback
+// Keep the cursor in view when typing
+editor.addEventListener('keyup', () => {
+    const wrapper = document.querySelector('.editor-wrapper');
     
-    clearTimeout(window.saveTimer);
-    window.saveTimer = setTimeout(updatePreview, 800); // Delayed heavy lifting
+    // Check if the cursor position is outside the current view
+    // This is a simple version; if you find it jumpy, 
+    // the wrapper's native 'overflow: auto' usually handles 90% of this.
+    if (document.activeElement === editor) {
+        // You can add logic here to ensure the cursor stays centered
+    }
+});
+
+// Tab Key Support
+editor.addEventListener('keydown', function(e) {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 4;
+        syncHighlight();
+    }
 });
 
 init();
