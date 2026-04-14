@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Turnout Playground</title>
+    <style>
+        body { display: flex; height: 100vh; margin: 0; font-family: sans-serif; }
+        .editor, .preview { flex: 1; display: flex; flex-direction: column; }
+        textarea { flex: 1; padding: 20px; font-family: monospace; font-size: 14px; border: none; background: #1e1e1e; color: #d4d4d4; resize: none; outline: none; tab-size: 4; caret-color: #00ff00; spellcheck: false; }
+        iframe { flex: 1; border: none; background: white; }
+        .toolbar { padding: 10px; background: #333; color: white; display: flex; justify-content: space-between; }
+    </style>
+    <script src="/turnout-playground.js" defer></script>
+</head>
+<body>
+
+    <div class="editor">
+        <div class="toolbar"><span>HTML Editor</span><button onclick="resetDefault()">CLEAR</button></div>
+        <textarea id="code" placeholder="Type your HTML here..."></textarea>
+    </div>
+
+    <div class="preview">
+        <div class="toolbar"><span>Live Preview</span><button onclick="updatePreview()">RUN</button></div>
+        <iframe id="display"></iframe>
+    </div>
+
+</body>
+</html>
