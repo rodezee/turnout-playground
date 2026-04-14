@@ -1,5 +1,4 @@
 const editor = document.getElementById('code');
-const display = document.getElementById('display');
 
 // 1. Load from localStorage on startup
 const savedCode = localStorage.getItem('turnout_playground_code');
@@ -7,7 +6,7 @@ if (savedCode) {
     editor.value = savedCode;
     updatePreview();
 } else {
-    // Default starter template for the user
+    // Default starter template
     editor.value = `<!DOCTYPE html>
 <html>
 <head>
@@ -25,28 +24,42 @@ if (savedCode) {
     updatePreview();
 }
 
-// 2. Update the iframe and save to localStorage
+// 2. The robust Update function
 function updatePreview() {
     const code = editor.value;
     localStorage.setItem('turnout_playground_code', code);
     
-    // 1. Target the iframe's document
-    const target = display.contentWindow.document;
-
-    // 2. Open the document for writing
-    // This resets the iframe and clears the "opaque origin" security block
+    // Target the container and the current iframe
+    const container = document.getElementById('preview-container');
+    const oldIframe = document.getElementById('display');
+    
+    // Remove the old one to kill history/memory
+    if (oldIframe) {
+        oldIframe.remove();
+    }
+    
+    // Create the brand new one
+    const newIframe = document.createElement('iframe');
+    newIframe.id = 'display';
+    container.appendChild(newIframe);
+    
+    // Write the new content
+    const target = newIframe.contentWindow.document;
     target.open();
-
-    // 3. Write your code into it
     target.write(code);
-
-    // 4. Close it to tell the browser it's finished loading
     target.close();
 }
 
+// 3. Reset helper
 function resetDefault() {
     if(confirm("Reset playground?")) {
         localStorage.removeItem('turnout_playground_code');
         location.reload();
     }
 }
+
+// 4. Typing listener
+editor.addEventListener('input', () => {
+    clearTimeout(window.saveTimer);
+    window.saveTimer = setTimeout(updatePreview, 500);
+});
