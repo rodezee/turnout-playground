@@ -99,6 +99,13 @@ function updatePreview() {
     });
 }
 
+function resetDefault() {
+    if(confirm("Reset playground?")) {
+        localStorage.removeItem('turnout_playground_code');
+        location.reload();
+    }
+}
+
 /**
  * EVENT LISTENERS
  */
