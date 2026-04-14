@@ -30,6 +30,35 @@ function init() {
     updatePreview();
 }
 
+/**
+ * SHARING
+ * Encodes the current editor content into a URL-safe Base64 string.
+ */
+function shareCode() {
+    const code = editor.value;
+    try {
+        // We use encodeURIComponent + a replacement regex to safely handle 
+        // Unicode characters before converting to Base64
+        const base64 = btoa(encodeURIComponent(code).replace(/%([0-9A-F]{2})/g,
+            function toSolidBytes(match, p1) {
+                return String.fromCharCode('0x' + p1);
+            }));
+
+        // Make the Base64 URL-friendly (replaces +, / and removes =)
+        const urlSafeBase64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        
+        const shareUrl = window.location.origin + window.location.pathname + '?code=' + urlSafeBase64;
+
+        // Copy to clipboard and notify user
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert("Shareable link copied to clipboard!");
+        });
+    } catch (e) {
+        console.error("Encoding failed", e);
+        alert("Sorry, failed to generate a share link for this code.");
+    }
+}
+
 function getDefaultTemplate() {
     return `<!DOCTYPE html>\n<html>\n<head>\n  <title>Turnout Playground</title>\n</head>\n<body>\n  <h1>Enjoy!</h1>\n</body>\n</html>`;
 }
