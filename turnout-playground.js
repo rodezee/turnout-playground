@@ -23,7 +23,7 @@ function init() {
             editor.value = savedCode || getDefaultTemplate();
         } finally {
             // cleanup the url, ready for edit save and refresh
-            history.pushState(null, null, "/");
+            history.pushState(null, "Turnout Playground", "/");
         }
     } else {
         editor.value = savedCode || getDefaultTemplate();
@@ -145,6 +145,16 @@ function updatePreview() {
 /**
  * EVENT LISTENERS
  */
+
+// Catch CTRL + S for Save
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey && e.key === 's') {
+    // Prevent the Save dialog to open
+    e.preventDefault();
+    // Instead save the code
+    saveCode()
+  }
+});
 
 // Typing
 editor.addEventListener('input', () => {
