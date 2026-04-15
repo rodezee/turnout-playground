@@ -18,6 +18,10 @@ function init() {
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
             editor.value = decoded;
+            // Subtle feedback
+            const messages = document.getElementById('messages');
+            messages.textContent = "Code imported from URL!";
+            setTimeout(() => { messages.textContent = ""; }, 3500);
         } catch (e) {
             console.error("Failed to decode shared code", e);
             editor.value = savedCode || getDefaultTemplate();
@@ -70,7 +74,12 @@ function saveCode() {
     try {
         const code = editor.value;
         localStorage.setItem('turnout_playground_code', code);
-        // Optional: Show a subtle "Saved!" toast/notification
+        
+        // Subtle feedback
+        const messages = document.getElementById('messages');
+        messages.textContent = "Saved to local storage!";
+        setTimeout(() => { messages.textContent = ""; }, 1500);
+        
     } catch (e) {
         console.warn("Local storage is full or disabled.");
     }
@@ -85,29 +94,29 @@ function resetDefault() {
 
 /**
  * SYNCHRONOUS UI UPDATES
- * We treat the Textarea as the absolute master.
  */
 function syncHighlight() {
     let code = editor.value;
-    // Prevent the last-line jump
     if (code[code.length - 1] === "\n") code += " ";
     
     highlightContent.textContent = code;
     Prism.highlightElement(highlightContent);
 
-    // 1. Temporarily shrink to measure content
-    editor.style.height = 'auto';
-    editor.style.width = 'auto';
-    
-    // 2. Measure exactly how much space the text occupies
-    const contentWidth = editor.scrollWidth + "px";
-    const contentHeight = editor.scrollHeight + "px";
-
-    // 3. Force both layers to that exact size so they match pixel-for-pixel
-    [editor, highlightLayer].forEach(el => {
-        el.style.width = contentWidth;
-        el.style.height = contentHeight;
-    });
+    // DEBOUNCE THE DIMENSIONS: 
+    // Highlighting text is fast, but resizing the DOM is slow.
+    clearTimeout(window.layoutTimer);
+    window.layoutTimer = setTimeout(() => {
+        // Only update dimensions if they actually changed
+        const newWidth = editor.scrollWidth + "px";
+        const newHeight = editor.scrollHeight + "px";
+        
+        if (editor.style.width !== newWidth || editor.style.height !== newHeight) {
+            [editor, highlightLayer].forEach(el => {
+                el.style.width = newWidth;
+                el.style.height = newHeight;
+            });
+        }
+    }, 10); // 10ms is invisible to the user but saves the CPU
 }
 
 // Remove scroll listeners—the wrapper handles it natively now!
