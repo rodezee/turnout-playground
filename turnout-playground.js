@@ -63,6 +63,18 @@ function getDefaultTemplate() {
     return `<!DOCTYPE html>\n<html>\n<head>\n  <title>Turnout Playground</title>\n</head>\n<body>\n  <h1>Enjoy!</h1>\n</body>\n</html>`;
 }
 
+function saveCode() {
+    const code = editor.value;
+    localStorage.setItem('turnout_playground_code', code);
+}
+
+function resetDefault() {
+    if(confirm("Reset playground?")) {
+        localStorage.removeItem('turnout_playground_code');
+        location.reload();
+    }
+}
+
 /**
  * SYNCHRONOUS UI UPDATES
  * We treat the Textarea as the absolute master.
@@ -100,8 +112,7 @@ window.addEventListener('resize', syncHighlight);
  */
 function updatePreview() {
     const code = editor.value;
-    localStorage.setItem('turnout_playground_code', code);
-    
+
     const container = document.getElementById('preview-container');
     const ptitle = document.getElementById('preview-title');
     const oldIframe = document.getElementById('display');
@@ -118,21 +129,14 @@ function updatePreview() {
     target.close();
 
     // Initial title set
-    ptitle.innerHTML = target.title + " - " + newIframe.contentWindow.location.pathname;
+    ptitle.innerHTML = (target.title || "") + " - " + newIframe.contentWindow.location.pathname;
 
     // onClick check change of title and pathname
     newIframe.contentWindow.addEventListener("click", () => {
       setTimeout(() => {
-        ptitle.textContent = newIframe.contentWindow.document.title + " - " + newIframe.contentWindow.location.pathname;
+        ptitle.textContent = (newIframe.contentWindow.document.title || "") + " - " + newIframe.contentWindow.location.pathname;
       });
     });
-}
-
-function resetDefault() {
-    if(confirm("Reset playground?")) {
-        localStorage.removeItem('turnout_playground_code');
-        location.reload();
-    }
 }
 
 /**

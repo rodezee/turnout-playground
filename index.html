@@ -90,6 +90,9 @@
         button[onclick="updatePreview()"] { background-color: #007acc; color: white; }
         button[onclick="updatePreview()"]:hover { background-color: #005a9e; box-shadow: 0 0 8px rgba(0, 122, 204, 0.3); }
 
+        button[onclick="saveCode()"] { background-color: #007acc; color: white; }
+        button[onclick="saveCode()"]:hover { background-color: #005a9e; box-shadow: 0 0 8px rgba(0, 122, 204, 0.3); }
+
         button[onclick="shareCode()"] { background-color: #28a745; color: white; }
         button[onclick="shareCode()"]:hover { background-color: #218838; }
 
@@ -112,6 +115,7 @@
                 <span>HTML Editor</span>
             </div>
             <div>
+                <button onclick="saveCode()">Save</button>
                 <button onclick="shareCode()">Share</button>
                 <button onclick="resetDefault()">Clear</button>
             </div>
