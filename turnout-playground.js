@@ -62,8 +62,8 @@ function shareCode() {
     }
 }
 
-function getDefaultTemplate() {
-    return `<!DOCTYPE html>\n<html>\n<head>\n  <title>Turnout Playground</title>\n</head>\n<body>\n  <h1>Enjoy!</h1>\n</body>\n</html>`;
+function getDefaultTemplate() { 
+    return "<!doctype html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Alpine Turnout Example</title>\n    <script src=\"//unpkg.com/alpine-turnout\" defer></script>\n    <script src=\"//unpkg.com/alpinejs\" defer></script>\n    <link rel=\"stylesheet\" href=\"//unpkg.com/@picocss/pico\">\n</head>\n<body class=\"container\" x-data>\n\n    <h1 x-data x-text=\"$store.turnout.title\"></h1>\n\n    <nav>\n        <ul>\n            <li><a href=\"/\">Home</a></li>\n            <li><a href=\"/user/john\">Profile 1</a></li>\n            <li><a href=\"/user/jane\">Profile 2</a></li>\n        </ul>\n    </nav>\n\n    <article>\n        <div x-route=\"/\" x-title=\"Welcome Home\" x-transition>\n            <p>This is the homepage.</p>\n        </div>\n\n        <div x-route=\"/user/:name\" x-title=\"User Profile\" x-transition>\n            <p>Hello, <strong x-text=\"name\"></strong>!</p>\n        </div>\n    </article>\n\n</body>\n</html>";
 }
 
 function saveCode() {
@@ -181,8 +181,8 @@ editor.addEventListener('keydown', function(e) {
         e.preventDefault();
         const start = this.selectionStart;
         const end = this.selectionEnd;
-        this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-        this.selectionStart = this.selectionEnd = start + 4;
+        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
+        this.selectionStart = this.selectionEnd = start + 2;
         syncHighlight();
     }
 });
