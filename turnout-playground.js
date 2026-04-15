@@ -21,6 +21,9 @@ function init() {
         } catch (e) {
             console.error("Failed to decode shared code", e);
             editor.value = savedCode || getDefaultTemplate();
+        } finally {
+            // cleanup the url, ready for edit save and refresh
+            history.pushState(null, null, "/");
         }
     } else {
         editor.value = savedCode || getDefaultTemplate();
