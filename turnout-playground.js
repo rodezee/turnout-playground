@@ -67,8 +67,13 @@ function getDefaultTemplate() {
 }
 
 function saveCode() {
-    const code = editor.value;
-    localStorage.setItem('turnout_playground_code', code);
+    try {
+        const code = editor.value;
+        localStorage.setItem('turnout_playground_code', code);
+        // Optional: Show a subtle "Saved!" toast/notification
+    } catch (e) {
+        console.warn("Local storage is full or disabled.");
+    }
 }
 
 function resetDefault() {
@@ -181,8 +186,37 @@ editor.addEventListener('keydown', function(e) {
         e.preventDefault();
         const start = this.selectionStart;
         const end = this.selectionEnd;
-        this.value = this.value.substring(0, start) + "  " + this.value.substring(end);
-        this.selectionStart = this.selectionEnd = start + 2;
+        const value = this.value;
+
+        // Find the start of the first line affected
+        const beforeSelection = value.substring(0, start);
+        const lineStart = beforeSelection.lastIndexOf('\n') + 1;
+        
+        // Is this a multi-line selection or a Shift+Tab?
+        if (start !== end || e.shiftKey) {
+            const afterSelection = value.substring(end);
+            const fullSelection = value.substring(lineStart, end);
+            
+            let processedText;
+            if (e.shiftKey) {
+                // SHIFT + TAB: Remove up to 2 spaces from the start of each line
+                processedText = fullSelection.replace(/^  |^ /gm, "");
+            } else {
+                // TAB: Add 2 spaces to the start of each line
+                processedText = fullSelection.replace(/^/gm, "  ");
+            }
+            
+            this.value = value.substring(0, lineStart) + processedText + afterSelection;
+            
+            // Maintain the selection over the modified block
+            this.selectionStart = (start <= lineStart) ? lineStart : Math.max(lineStart, start + (processedText.length - fullSelection.length));
+            this.selectionEnd = lineStart + processedText.length;
+        } else {
+            // REGULAR TAB: Just insert 2 spaces at cursor
+            this.value = value.substring(0, start) + "  " + value.substring(end);
+            this.selectionStart = this.selectionEnd = start + 2;
+        }
+        
         syncHighlight();
     }
 });
