@@ -3,7 +3,7 @@
 
 A lightweight, zero-dependency, HTML/CSS/JS playground with instant syntax highlighting and live preview.
 
-**Turnout Playground** is designed for developers who want a fast, "no-nonsense" environment to sketch out front-end ideas. Unlike heavy editors, it uses `Prism.js` highlighted layer, ensuring perfect highlight without the overhead of a virtual DOM.
+**Turnout Playground** was designed to demonstrate the project [Alpine Turnout](https://gitub.com/rodezee/alpine-turnout), but can be used for developers who want a fast, "no-nonsense" environment to sketch out front-end ideas. Unlike heavy editors, it uses `Prism.js` highlighted layer, ensuring perfect highlight without the overhead of a virtual DOM.
 
 ## 🚀 Kickstart
 ### LIVE: Turnout Playground Example
